@@ -39,7 +39,7 @@ export async function getStoriesIndex() {
       return []
     }
     const parsed = JSON.parse(content)
-    return Array.isArray(parsed) ? parsed : []
+    return parsed.stories || []
   } catch (error) {
     if (error.status === 404) {
       return []
@@ -172,7 +172,7 @@ export async function uploadStory(storyData) {
 
   files.push({
     path: 'public/stories-index.json',
-    content: JSON.stringify(updatedIndex, null, 2)
+    content: JSON.stringify({ stories: updatedIndex }, null, 2)
   })
 
   const commitMessage = `Add story: ${storyData.title}`

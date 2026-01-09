@@ -71,7 +71,11 @@ function UploadStory() {
       })
 
       if (result.success) {
+        setLoading(false)
         navigate(`/story/${formData.slug || generateSlug(formData.title)}`)
+      } else {
+        setError('Failed to upload story. Please try again.')
+        setLoading(false)
       }
     } catch (err) {
       setError(err.message || 'Failed to upload story. Please check your GitHub token configuration.')

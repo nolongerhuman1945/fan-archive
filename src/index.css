@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-warm-50 dark:bg-[#14191A] text-warm-900 dark:text-warm-100 transition-colors duration-200;
+    font-feature-settings: "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .prose-content {
+    @apply prose prose-lg dark:prose-invert max-w-none prose-headings:font-medium;
+  }
+  
+  .prose-content h1 {
+    @apply text-3xl font-semibold mb-6 mt-10 text-warm-900 dark:text-warm-50 tracking-tight;
+    font-weight: 600;
+  }
+  
+  .prose-content h2 {
+    @apply text-2xl font-semibold mb-4 mt-8 text-warm-900 dark:text-warm-50 tracking-tight;
+    font-weight: 600;
+  }
+  
+  .prose-content h3 {
+    @apply text-xl font-medium mb-3 mt-6 text-warm-800 dark:text-warm-200 tracking-tight;
+    font-weight: 500;
+  }
+  
+  .prose-content p {
+    @apply mb-5 leading-7 text-warm-700 dark:text-warm-300;
+    font-size: 1.0625rem;
+  }
+  
+  .prose-content ul, .prose-content ol {
+    @apply mb-5 ml-6;
+  }
+  
+  .prose-content li {
+    @apply mb-2 text-warm-700 dark:text-warm-300;
+  }
+  
+  .prose-content a {
+    @apply text-warm-900 dark:text-warm-100 underline underline-offset-2 hover:no-underline;
+  }
+  
+  .prose-content code {
+    @apply bg-warm-200 dark:bg-warm-800 px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+  
+  .prose-content pre {
+    @apply bg-warm-200 dark:bg-warm-800 p-5 rounded-md overflow-x-auto mb-5;
+  }
+  
+  .prose-content blockquote {
+    @apply border-l-4 border-warm-400 dark:border-warm-600 pl-5 italic my-5 text-warm-600 dark:text-warm-400;
+  }
+  
+  .prose-content strong {
+    @apply font-semibold text-warm-900 dark:text-warm-50;
+  }
+  
+  .prose-content em {
+    @apply italic text-warm-700 dark:text-warm-300;
+  }
+}

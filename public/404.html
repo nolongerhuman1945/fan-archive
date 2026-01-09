@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fanfic Archive</title>
+  </head>
+  <body>
+    <script>
+      // Redirect to index.html for client-side routing
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      
+      // Extract the path after /fan-archive/
+      var basePath = '/fan-archive';
+      var relativePath = path.replace(basePath, '');
+      
+      // Build redirect URL
+      var newPath = basePath + '/index.html';
+      if (relativePath && relativePath !== '/404.html') {
+        newPath += '#/' + relativePath.replace(/^\//, '');
+      }
+      
+      if (search) {
+        newPath += search;
+      }
+      if (hash && !relativePath) {
+        newPath += hash;
+      }
+      
+      window.location.replace(newPath);
+    </script>
+  </body>
+</html>

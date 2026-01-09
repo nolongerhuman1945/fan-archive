@@ -1,0 +1,18 @@
+{
+  "title": "Time Travel Mystery",
+  "author": "ChronoAuthor",
+  "summary": "When a mysterious artifact falls into their hands, a group of friends discovers they can travel through time. But changing the past has consequences they never expected, and they soon realize they're not the only ones who know about the artifact.",
+  "rating": "PG-13",
+  "tags": ["Time Travel", "Mystery", "Thriller", "Friendship"],
+  "chapters": [
+    {
+      "title": "The Discovery"
+    },
+    {
+      "title": "First Jump"
+    },
+    {
+      "title": "The Consequences"
+    }
+  ]
+}

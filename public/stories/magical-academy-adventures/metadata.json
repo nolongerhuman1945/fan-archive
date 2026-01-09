@@ -1,0 +1,18 @@
+{
+  "title": "Magical Academy Adventures",
+  "author": "AuthorName",
+  "summary": "A young wizard discovers their powers and embarks on an epic journey through a magical academy filled with mysteries and danger. As they learn to control their abilities, they uncover dark secrets that threaten not just the academy, but the entire magical world.",
+  "rating": "PG-13",
+  "tags": ["Fantasy", "Adventure", "Magic", "School Life"],
+  "chapters": [
+    {
+      "title": "The Discovery"
+    },
+    {
+      "title": "First Day at Academy"
+    },
+    {
+      "title": "The Forbidden Library"
+    }
+  ]
+}

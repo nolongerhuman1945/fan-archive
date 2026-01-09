@@ -1,43 +1,22 @@
-{
-  "stories": [
-    {
-      "slug": "magical-academy-adventures",
-      "title": "Magical Academy Adventures",
-      "author": "AuthorName",
-      "summary": "A young wizard discovers their powers and embarks on an epic journey through a magical academy filled with mysteries and danger.",
-      "rating": "PG-13",
-      "tags": ["Fantasy", "Adventure", "Magic", "School Life"],
-      "chapters": [
-        { "title": "The Discovery" },
-        { "title": "First Day at Academy" },
-        { "title": "The Forbidden Library" }
-      ]
-    },
-    {
-      "slug": "space-explorer-chronicles",
-      "title": "Space Explorer Chronicles",
-      "author": "StarWriter",
-      "summary": "Captain Nova and her crew explore the far reaches of the galaxy, encountering strange alien civilizations and uncovering ancient secrets.",
-      "rating": "PG",
-      "tags": ["Sci-Fi", "Space", "Adventure", "Alien"],
-      "chapters": [
-        { "title": "The Signal" },
-        { "title": "First Contact" },
-        { "title": "The Ancient Station" }
-      ]
-    },
-    {
-      "slug": "time-travel-mystery",
-      "title": "Time Travel Mystery",
-      "author": "ChronoAuthor",
-      "summary": "When a mysterious artifact falls into their hands, a group of friends discovers they can travel through time. But changing the past has consequences they never expected.",
-      "rating": "PG-13",
-      "tags": ["Time Travel", "Mystery", "Thriller", "Friendship"],
-      "chapters": [
-        { "title": "The Discovery" },
-        { "title": "First Jump" },
-        { "title": "The Consequences" }
-      ]
-    }
-  ]
-}
+[
+  {
+    "title": "Ovalle",
+    "author": "Claude",
+    "summary": "AOT Fan-Fic",
+    "rating": "M",
+    "tags": [
+      "action",
+      "thriller",
+      "romance",
+      "politics",
+      "anime"
+    ],
+    "slug": "o",
+    "chapters": [
+      {
+        "title": "Gravity",
+        "file": "chapter-1.md"
+      }
+    ]
+  }
+]

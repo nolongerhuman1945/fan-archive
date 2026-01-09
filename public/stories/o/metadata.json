@@ -1,0 +1,20 @@
+{
+  "title": "Ovalle",
+  "author": "Claude",
+  "summary": "AOT Fan-Fic",
+  "rating": "M",
+  "tags": [
+    "action",
+    "thriller",
+    "romance",
+    "politics",
+    "anime"
+  ],
+  "slug": "o",
+  "chapters": [
+    {
+      "title": "Gravity",
+      "file": "chapter-1.md"
+    }
+  ]
+}

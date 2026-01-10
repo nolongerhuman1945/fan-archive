@@ -6,11 +6,11 @@
       "summary": "AOT Fan-Fic",
       "rating": "M",
       "tags": [
-        "action",
-        "thriller",
-        "romance",
-        "politics",
-        "anime"
+        "Action",
+        "Thriller",
+        "Romance",
+        "Politics",
+        "Anime"
       ],
       "slug": "o",
       "chapters": [
@@ -26,11 +26,22 @@
       "author": "AuthorName",
       "summary": "A young wizard discovers their powers and embarks on an epic journey through a magical academy filled with mysteries and danger.",
       "rating": "PG-13",
-      "tags": ["Fantasy", "Adventure", "Magic", "School Life"],
+      "tags": [
+        "Fantasy",
+        "Adventure",
+        "Magic",
+        "School Life"
+      ],
       "chapters": [
-        { "title": "The Discovery" },
-        { "title": "First Day at Academy" },
-        { "title": "The Forbidden Library" }
+        {
+          "title": "The Discovery"
+        },
+        {
+          "title": "First Day at Academy"
+        },
+        {
+          "title": "The Forbidden Library"
+        }
       ]
     },
     {
@@ -39,11 +50,22 @@
       "author": "StarWriter",
       "summary": "Captain Nova and her crew explore the far reaches of the galaxy, encountering strange alien civilizations and uncovering ancient secrets.",
       "rating": "PG",
-      "tags": ["Sci-Fi", "Space", "Adventure", "Alien"],
+      "tags": [
+        "Sci-fi",
+        "Space",
+        "Adventure",
+        "Alien"
+      ],
       "chapters": [
-        { "title": "The Signal" },
-        { "title": "First Contact" },
-        { "title": "The Ancient Station" }
+        {
+          "title": "The Signal"
+        },
+        {
+          "title": "First Contact"
+        },
+        {
+          "title": "The Ancient Station"
+        }
       ]
     },
     {
@@ -52,11 +74,22 @@
       "author": "ChronoAuthor",
       "summary": "When a mysterious artifact falls into their hands, a group of friends discovers they can travel through time. But changing the past has consequences they never expected.",
       "rating": "PG-13",
-      "tags": ["Time Travel", "Mystery", "Thriller", "Friendship"],
+      "tags": [
+        "Time Travel",
+        "Mystery",
+        "Thriller",
+        "Friendship"
+      ],
       "chapters": [
-        { "title": "The Discovery" },
-        { "title": "First Jump" },
-        { "title": "The Consequences" }
+        {
+          "title": "The Discovery"
+        },
+        {
+          "title": "First Jump"
+        },
+        {
+          "title": "The Consequences"
+        }
       ]
     }
   ]

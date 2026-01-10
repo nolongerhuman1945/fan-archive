@@ -24,13 +24,24 @@ function ChapterPage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
+      // Check URL for refresh parameter to force fresh fetch
+      const urlParams = new URLSearchParams(window.location.search)
+      const forceRefresh = urlParams.get('refresh') === 'true'
       const [storyData, chapterData] = await Promise.all([
-        loadStoryMetadata(slug),
-        loadChapter(slug, currentChapter)
+        loadStoryMetadata(slug, forceRefresh),
+        loadChapter(slug, currentChapter, forceRefresh)
       ])
       setMetadata(storyData)
       setContent(chapterData)
       setLoading(false)
+      // Remove refresh parameter from URL after loading
+      if (forceRefresh) {
+        const urlParams = new URLSearchParams(window.location.search)
+        urlParams.delete('refresh')
+        const newSearch = urlParams.toString()
+        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '')
+        window.history.replaceState({}, '', newUrl)
+      }
     }
     fetchData()
   }, [slug, currentChapter])

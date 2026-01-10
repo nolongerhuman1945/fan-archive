@@ -242,7 +242,12 @@ function UploadStory() {
 
       if (result.success) {
         setLoading(false)
-        navigate(`/story/${formData.slug || storySlug || generateSlug(formData.title)}`)
+        const targetSlug = formData.slug || storySlug || generateSlug(formData.title)
+        // Wait a moment for GitHub to propagate the commit before navigating
+        // Use window.location.href to force a full page reload with fresh data
+        setTimeout(() => {
+          window.location.href = `/story/${targetSlug}?refresh=true`
+        }, 2000)
       } else {
         setError('Failed to upload story. Please try again.')
         setLoading(false)

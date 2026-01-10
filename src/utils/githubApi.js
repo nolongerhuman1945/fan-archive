@@ -12,12 +12,13 @@ const octokit = new Octokit({
   auth: GITHUB_TOKEN
 })
 
-export async function getFileContent(path) {
+export async function getFileContent(path, retryCount = 0) {
   try {
     const { data } = await octokit.repos.getContent({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,
-      path: path
+      path: path,
+      ref: 'main' // Explicitly use main branch to avoid caching issues
     })
     
     if (data.type === 'file' && data.encoding === 'base64') {
@@ -25,6 +26,12 @@ export async function getFileContent(path) {
     }
     return null
   } catch (error) {
+    // Retry once if we get 404 and haven't retried yet (might be propagation delay)
+    if (error.status === 404 && retryCount === 0) {
+      // Wait a bit for GitHub to propagate the commit
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      return getFileContent(path, 1)
+    }
     if (error.status === 404) {
       return null
     }
@@ -181,14 +188,44 @@ export async function commitFiles(files, commitMessage, deletePaths = []) {
   }
 }
 
-export async function getStoryMetadataFromGitHub(slug) {
+export async function getStoryMetadataFromGitHub(slug, forceFresh = false) {
   try {
+    // If forcing fresh, wait a bit for GitHub to propagate
+    if (forceFresh) {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+    }
     const metadataContent = await getFileContent(`public/stories/${slug}/metadata.json`)
     if (!metadataContent) {
+      // Retry once if we get null and are forcing fresh (might be propagation delay)
+      if (forceFresh) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        const retryContent = await getFileContent(`public/stories/${slug}/metadata.json`)
+        if (!retryContent) {
+          return null
+        }
+        return JSON.parse(retryContent)
+      }
       return null
     }
     return JSON.parse(metadataContent)
   } catch (error) {
+    // Retry once if we get an error and are forcing fresh (might be propagation delay)
+    if (forceFresh && error.status !== 404) {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      try {
+        const retryContent = await getFileContent(`public/stories/${slug}/metadata.json`)
+        if (!retryContent) {
+          return null
+        }
+        return JSON.parse(retryContent)
+      } catch (retryError) {
+        if (retryError.status === 404) {
+          return null
+        }
+        console.error('Error fetching story metadata from GitHub (retry failed):', retryError)
+        throw retryError
+      }
+    }
     if (error.status === 404) {
       return null
     }

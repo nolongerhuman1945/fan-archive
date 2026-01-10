@@ -16,9 +16,20 @@ function StoryPage() {
   useEffect(() => {
     async function fetchMetadata() {
       setLoading(true)
-      const data = await loadStoryMetadata(slug)
+      // Check URL for refresh parameter to force fresh fetch
+      const urlParams = new URLSearchParams(window.location.search)
+      const forceRefresh = urlParams.get('refresh') === 'true'
+      const data = await loadStoryMetadata(slug, forceRefresh)
       setMetadata(data)
       setLoading(false)
+      // Remove refresh parameter from URL after loading
+      if (forceRefresh) {
+        const urlParams = new URLSearchParams(window.location.search)
+        urlParams.delete('refresh')
+        const newSearch = urlParams.toString()
+        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '')
+        window.history.replaceState({}, '', newUrl)
+      }
     }
     fetchMetadata()
   }, [slug])

@@ -1,26 +1,6 @@
 {
   "stories": [
     {
-      "title": "Ovalle",
-      "author": "Claude",
-      "summary": "AOT Fan-Fic",
-      "rating": "M",
-      "tags": [
-        "Action",
-        "Thriller",
-        "Romance",
-        "Politics",
-        "Anime"
-      ],
-      "slug": "o",
-      "chapters": [
-        {
-          "title": "Gravity",
-          "file": "chapter-1.md"
-        }
-      ]
-    },
-    {
       "slug": "magical-academy-adventures",
       "title": "Magical Academy Adventures",
       "author": "AuthorName",
@@ -89,6 +69,26 @@
         },
         {
           "title": "The Consequences"
+        }
+      ]
+    },
+    {
+      "title": "Ovalle",
+      "author": "Claude",
+      "summary": "AOT Fan-Fic",
+      "rating": "M",
+      "tags": [
+        "Action",
+        "Thriller",
+        "Romance",
+        "Politics",
+        "Anime"
+      ],
+      "slug": "o",
+      "chapters": [
+        {
+          "title": "Gravity",
+          "file": "chapter-1.md"
         }
       ]
     }

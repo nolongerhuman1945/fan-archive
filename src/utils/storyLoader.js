@@ -1,10 +1,15 @@
 export async function loadAllStories() {
   try {
-    const response = await fetch('/stories-index.json')
+    const base = import.meta.env.BASE_URL || '/'
+    const response = await fetch(`${base}stories-index.json`)
     if (!response.ok) {
       return []
     }
     const data = await response.json()
+    // Handle both formats: { stories: [...] } or [...]
+    if (Array.isArray(data)) {
+      return data
+    }
     return data.stories || []
   } catch (error) {
     console.error('Error loading stories:', error)
@@ -14,7 +19,8 @@ export async function loadAllStories() {
 
 export async function loadStoryMetadata(slug) {
   try {
-    const response = await fetch(`/stories/${slug}/metadata.json`)
+    const base = import.meta.env.BASE_URL || '/'
+    const response = await fetch(`${base}stories/${slug}/metadata.json`)
     if (!response.ok) {
       return null
     }
@@ -27,7 +33,8 @@ export async function loadStoryMetadata(slug) {
 
 export async function loadChapter(slug, chapterNum) {
   try {
-    const response = await fetch(`/stories/${slug}/chapter-${chapterNum}.md`)
+    const base = import.meta.env.BASE_URL || '/'
+    const response = await fetch(`${base}stories/${slug}/chapter-${chapterNum}.md`)
     if (!response.ok) {
       return null
     }

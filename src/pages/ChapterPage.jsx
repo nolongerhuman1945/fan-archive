@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { loadStoryMetadata, loadChapter } from '../utils/storyLoader'
+import { deleteChapter } from '../utils/githubApi'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 function ChapterPage() {
   const { slug, chapterNum } = useParams()
@@ -11,6 +13,9 @@ function ChapterPage() {
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [readingProgress, setReadingProgress] = useState(0)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [error, setError] = useState(null)
   const contentRef = useRef(null)
 
   const currentChapter = parseInt(chapterNum, 10)
@@ -74,6 +79,31 @@ function ChapterPage() {
     }
   }
 
+  const handleDelete = async () => {
+    setDeleting(true)
+    setError(null)
+    try {
+      const result = await deleteChapter(slug, currentChapter)
+      if (result.success) {
+        if (currentChapter === 1 && totalChapters === 1) {
+          navigate(`/story/${slug}`)
+        } else if (currentChapter === totalChapters) {
+          navigate(`/story/${slug}/chapter/${currentChapter - 1}`)
+        } else {
+          navigate(`/story/${slug}/chapter/${currentChapter}`)
+        }
+      } else {
+        setError('Failed to delete chapter. Please try again.')
+        setDeleting(false)
+        setShowDeleteDialog(false)
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete chapter. Please check your GitHub token configuration.')
+      setDeleting(false)
+      setShowDeleteDialog(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -97,6 +127,12 @@ function ChapterPage() {
 
   return (
     <div>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md max-w-4xl mx-auto">
+          <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+        </div>
+      )}
+
       <div className="sticky top-[64px] z-40 bg-warm-50/95 dark:bg-[#14191A]/95 backdrop-blur-sm border-b border-warm-200 dark:border-warm-800 mb-6">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -109,9 +145,28 @@ function ChapterPage() {
               </svg>
               {metadata.title}
             </Link>
-            <span className="text-sm text-warm-600 dark:text-warm-400 font-medium">
-              Chapter {currentChapter} of {totalChapters}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-warm-600 dark:text-warm-400 font-medium">
+                Chapter {currentChapter} of {totalChapters}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/edit-chapter/${slug}/${currentChapter}`)}
+                  className="px-2.5 py-1 text-xs bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors font-medium"
+                  title="Edit chapter"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={totalChapters === 1}
+                  className="px-2.5 py-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
           <div className="w-full bg-warm-200/50 dark:bg-warm-700/30 rounded-full h-[1px]">
             <div
@@ -179,6 +234,17 @@ function ChapterPage() {
           </div>
         </nav>
       </article>
+
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDelete}
+        title="Delete Chapter"
+        message={`Are you sure you want to delete "${chapterTitle}"? This will permanently delete this chapter and renumber remaining chapters. This action cannot be undone.`}
+        confirmText={deleting ? "Deleting..." : "Delete Chapter"}
+        cancelText="Cancel"
+        danger={true}
+      />
     </div>
   )
 }

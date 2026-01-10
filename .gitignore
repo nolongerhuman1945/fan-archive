@@ -27,3 +27,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Internal documentation files
+issues.md
+plan.md
+
+# Temporary/development files
+*.tmp
+*.temp
+
+# Unused/duplicate files (root level only)
+/icons/
+/site-icon.png

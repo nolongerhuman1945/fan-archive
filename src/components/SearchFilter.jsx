@@ -1,3 +1,8 @@
+import { Link } from 'react-router-dom'
+import GridIcon from './icons/GridIcon'
+import ListIcon from './icons/ListIcon'
+import UploadIcon from './icons/UploadIcon'
+
 function SearchFilter({
   allTags,
   selectedTags,
@@ -20,30 +25,33 @@ function SearchFilter({
         <div className="flex gap-2">
           <button
             onClick={() => onViewModeChange('grid')}
-            className={`px-4 py-2.5 rounded-md border transition-colors ${
+            className={`px-4 py-2.5 rounded-md border transition-colors flex items-center justify-center ${
               viewMode === 'grid'
                 ? 'bg-warm-900 dark:bg-warm-100 text-warm-50 dark:text-warm-900 border-warm-900 dark:border-warm-100'
                 : 'bg-white dark:bg-warm-800 border-warm-300 dark:border-warm-700 text-warm-700 dark:text-warm-300 hover:bg-warm-50 dark:hover:bg-warm-700'
             }`}
             aria-label="Grid view"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
+            <GridIcon className="w-5 h-5 block" />
           </button>
           <button
             onClick={() => onViewModeChange('list')}
-            className={`px-4 py-2.5 rounded-md border transition-colors ${
+            className={`px-4 py-2.5 rounded-md border transition-colors flex items-center justify-center ${
               viewMode === 'list'
                 ? 'bg-warm-900 dark:bg-warm-100 text-warm-50 dark:text-warm-900 border-warm-900 dark:border-warm-100'
                 : 'bg-white dark:bg-warm-800 border-warm-300 dark:border-warm-700 text-warm-700 dark:text-warm-300 hover:bg-warm-50 dark:hover:bg-warm-700'
             }`}
             aria-label="List view"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <ListIcon className="w-5 h-5 block" />
           </button>
+          <Link
+            to="/upload"
+            className="px-4 py-2.5 rounded-md border transition-colors bg-white dark:bg-warm-800 border-warm-300 dark:border-warm-700 text-warm-700 dark:text-warm-300 hover:bg-warm-50 dark:hover:bg-warm-700 flex items-center justify-center"
+            aria-label="Upload story"
+          >
+            <UploadIcon className="w-5 h-5 block" />
+          </Link>
         </div>
         <div className="text-sm text-warm-600 dark:text-warm-400">
           Showing {resultCount} {resultCount === 1 ? 'story' : 'stories'}

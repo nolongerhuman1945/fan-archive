@@ -186,7 +186,7 @@ function EditChapterPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate(`/story/${slug}/chapter/${chapterNumber}`)}
+              onClick={() => navigate(`/story/${slug}`)}
               className="px-6 py-2.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md font-medium hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors"
             >
               Cancel

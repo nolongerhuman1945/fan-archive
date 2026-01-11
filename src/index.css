@@ -7,37 +7,97 @@
     @apply antialiased;
   }
   
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply bg-warm-50 dark:bg-[#14191A] text-warm-900 dark:text-warm-100 transition-colors duration-200;
     font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Custom Scrollbar Styles */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d1c8 transparent;
+  }
+
+  .dark * {
+    scrollbar-color: #5f574c transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #d6d1c8;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #c0b9ad;
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background-color: #5f574c;
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background-color: #746b5d;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
   .prose-content {
     @apply prose prose-lg dark:prose-invert max-w-none prose-headings:font-medium;
+    font-family: var(--reading-font-family, inherit);
+    font-size: var(--reading-font-size, 1.0625rem);
+    background-color: var(--reading-bg-color, transparent);
+    color: var(--reading-text-color, inherit);
   }
   
   .prose-content h1 {
     @apply text-3xl font-semibold mb-6 mt-10 text-warm-900 dark:text-warm-50 tracking-tight;
     font-weight: 600;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content h2 {
     @apply text-2xl font-semibold mb-4 mt-8 text-warm-900 dark:text-warm-50 tracking-tight;
     font-weight: 600;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content h3 {
     @apply text-xl font-medium mb-3 mt-6 text-warm-800 dark:text-warm-200 tracking-tight;
     font-weight: 500;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content p {
     @apply mb-5 leading-7 text-warm-700 dark:text-warm-300;
-    font-size: 1.0625rem;
+    font-size: var(--reading-font-size, 1.0625rem) !important;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content ul, .prose-content ol {
@@ -46,29 +106,36 @@
   
   .prose-content li {
     @apply mb-2 text-warm-700 dark:text-warm-300;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content a {
     @apply text-warm-900 dark:text-warm-100 underline underline-offset-2 hover:no-underline;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content code {
     @apply bg-warm-200 dark:bg-warm-800 px-1.5 py-0.5 rounded text-sm font-mono;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content pre {
     @apply bg-warm-200 dark:bg-warm-800 p-5 rounded-md overflow-x-auto mb-5;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content blockquote {
     @apply border-l-4 border-warm-400 dark:border-warm-600 pl-5 italic my-5 text-warm-600 dark:text-warm-400;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content strong {
     @apply font-semibold text-warm-900 dark:text-warm-50;
+    color: var(--reading-text-color, inherit) !important;
   }
   
   .prose-content em {
     @apply italic text-warm-700 dark:text-warm-300;
+    color: var(--reading-text-color, inherit) !important;
   }
 }

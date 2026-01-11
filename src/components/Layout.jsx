@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 import { useSearch } from '../contexts/SearchContext'
@@ -5,16 +6,80 @@ import { useSearch } from '../contexts/SearchContext'
 function Layout({ children }) {
   const { searchTerm, setSearchTerm } = useSearch()
   const location = useLocation()
+  const [headerVisible, setHeaderVisible] = useState(true)
+  const lastScrollY = useRef(0)
+  const scrollTimeout = useRef(null)
+
+  // Handle scroll behavior - hide/show header on scroll
+  useEffect(() => {
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // Always show header at top of page
+      if (currentScrollY < 10) {
+        setHeaderVisible(true)
+        lastScrollY.current = currentScrollY
+        return
+      }
+
+      // Clear existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+
+      // Show header when scrolling up, hide when scrolling down
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Scrolling down - hide header
+        setHeaderVisible(false)
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up - show header
+        setHeaderVisible(true)
+      }
+
+      lastScrollY.current = currentScrollY
+
+      // Debounce: show header after scrolling stops (optional)
+      scrollTimeout.current = setTimeout(() => {
+        // Optionally show header after scroll stops
+        // setHeaderVisible(true)
+      }, 150)
+    }
+
+    // Throttle scroll events for performance
+    let ticking = false
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll()
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll)
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-warm-50 dark:bg-[#14191A]">
-      <nav className="border-b border-warm-200 dark:border-warm-800 bg-warm-50/95 dark:bg-[#14191A]/95 backdrop-blur-sm sticky top-0 z-50">
+      <nav 
+        className={`border-b border-warm-200 dark:border-warm-800 bg-warm-50/95 dark:bg-[#14191A]/95 backdrop-blur-sm sticky top-0 z-50 transition-transform duration-300 ease-in-out ${
+          !headerVisible ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 sm:gap-4 py-4">
-            <Link to="/" className="flex items-center gap-2 text-xl sm:text-2xl font-medium text-warm-900 dark:text-warm-50 hover:opacity-70 transition-opacity tracking-tight shrink-0">
+            <Link to="/" className="flex items-center gap-2 text-xl sm:text-2xl font-medium text-warm-600 dark:text-warm-400 hover:opacity-70 transition-opacity tracking-tight shrink-0">
               <img 
                 src="/site-icon.png"
-                alt="Fanfic Archive" 
+                alt="Fan-Archive" 
                 className="w-7 h-7 sm:w-8 sm:h-8 object-contain flex-shrink-0" 
                 style={{ display: 'block', minWidth: '28px', minHeight: '28px' }}
                 onLoad={() => console.log('Site icon loaded successfully')}
@@ -26,8 +91,8 @@ function Layout({ children }) {
                   }
                 }}
               />
-              <span className="hidden sm:inline">Fanfic Archive</span>
-              <span className="sm:hidden">Archive</span>
+              <span className="hidden sm:inline">Fan-Archive</span>
+              <span className="sm:hidden">Fan-Archive</span>
             </Link>
             {location.pathname !== '/upload' && (
               <div className="flex-1 flex justify-center max-w-2xl mx-auto hidden sm:flex">
@@ -70,11 +135,6 @@ function Layout({ children }) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
-      <footer className="border-t border-warm-200 dark:border-warm-800 mt-12 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-warm-600 dark:text-warm-400 text-sm">
-          <p>Fanfic Archive &copy; {new Date().getFullYear()}</p>
-        </div>
-      </footer>
     </div>
   )
 }

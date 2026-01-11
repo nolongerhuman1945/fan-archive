@@ -7,25 +7,30 @@
   </head>
   <body>
     <script>
-      // Redirect to index.html for client-side routing
+      // Redirect to index.html for client-side routing with BrowserRouter
       var path = window.location.pathname;
       var search = window.location.search;
       var hash = window.location.hash;
       
       // Extract the path after /fan-archive/
       var basePath = '/fan-archive';
-      var relativePath = path.replace(basePath, '');
+      var relativePath = path.replace(basePath, '').replace(/\/index\.html$/, '');
       
-      // Build redirect URL
+      // Build redirect URL - use query parameter instead of hash for BrowserRouter
       var newPath = basePath + '/index.html';
-      if (relativePath && relativePath !== '/404.html') {
-        newPath += '#/' + relativePath.replace(/^\//, '');
+      var params = new URLSearchParams(search);
+      
+      if (relativePath && relativePath !== '/404.html' && relativePath !== '/') {
+        params.set('redirect', relativePath);
       }
       
-      if (search) {
-        newPath += search;
+      var queryString = params.toString();
+      if (queryString) {
+        newPath += '?' + queryString;
       }
-      if (hash && !relativePath) {
+      
+      // Preserve original hash if present and no redirect path
+      if (hash && (!relativePath || relativePath === '/404.html' || relativePath === '/')) {
         newPath += hash;
       }
       

@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { loadStoryMetadata } from '../utils/storyLoader'
-import { deleteStory } from '../utils/githubApi'
+import { deleteStory, deleteChapter } from '../utils/githubApi'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { getBookmark } from '../utils/bookmarkManager'
+import EditIcon from '../components/icons/EditIcon'
+import DeleteIcon from '../components/icons/DeleteIcon'
+import { getGenreName } from '../utils/genreData'
+import ContextMenuTrigger from '../components/ContextMenuTrigger'
+import { SkeletonStoryMetadata } from '../components/Skeleton'
 
 function StoryPage() {
   const { slug } = useParams()
@@ -12,6 +18,10 @@ function StoryPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState(null)
+  const [bookmark, setBookmark] = useState(null)
+  const [chapterToDelete, setChapterToDelete] = useState(null)
+  const [showDeleteChapterDialog, setShowDeleteChapterDialog] = useState(false)
+  const [deletingChapter, setDeletingChapter] = useState(false)
 
   useEffect(() => {
     async function fetchMetadata() {
@@ -21,6 +31,9 @@ function StoryPage() {
       const forceRefresh = urlParams.get('refresh') === 'true'
       const data = await loadStoryMetadata(slug, forceRefresh)
       setMetadata(data)
+      // Check for bookmark
+      const bookmarkData = getBookmark(slug)
+      setBookmark(bookmarkData)
       setLoading(false)
       // Remove refresh parameter from URL after loading
       if (forceRefresh) {
@@ -35,11 +48,7 @@ function StoryPage() {
   }, [slug])
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-lg text-warm-600 dark:text-warm-400">Loading story...</div>
-      </div>
-    )
+    return <SkeletonStoryMetadata />
   }
 
   if (!metadata) {
@@ -69,6 +78,30 @@ function StoryPage() {
       setError(err.message || 'Failed to delete story. Please check your GitHub token configuration.')
       setDeleting(false)
       setShowDeleteDialog(false)
+    }
+  }
+
+  const handleDeleteChapter = async () => {
+    if (!chapterToDelete) return
+    setDeletingChapter(true)
+    setError(null)
+    try {
+      const result = await deleteChapter(slug, chapterToDelete)
+      if (result.success) {
+        const urlParams = new URLSearchParams(window.location.search)
+        urlParams.set('refresh', 'true')
+        window.location.href = window.location.pathname + '?' + urlParams.toString()
+      } else {
+        setError('Failed to delete chapter. Please try again.')
+        setDeletingChapter(false)
+        setShowDeleteChapterDialog(false)
+        setChapterToDelete(null)
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete chapter. Please check your GitHub token configuration.')
+      setDeletingChapter(false)
+      setShowDeleteChapterDialog(false)
+      setChapterToDelete(null)
     }
   }
 
@@ -117,17 +150,19 @@ function StoryPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => navigate(`/edit-story/${slug}`)}
-                className="px-3 py-1.5 text-xs bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors font-medium"
+                className="p-2 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors"
                 title="Edit story"
+                aria-label="Edit story"
               >
-                Edit
+                <EditIcon className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setShowDeleteDialog(true)}
-                className="px-3 py-1.5 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors font-medium"
+                className="p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                 title="Delete story"
+                aria-label="Delete story"
               >
-                Delete
+                <DeleteIcon className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -142,18 +177,27 @@ function StoryPage() {
           </div>
         )}
 
-        {metadata.tags && metadata.tags.length > 0 && (
+        {((metadata.genres && metadata.genres.length > 0) || (metadata.tags && metadata.tags.length > 0)) && (
           <div className="mb-6">
-            <h2 className="text-lg font-medium mb-2 text-warm-900 dark:text-warm-50 tracking-tight">Tags</h2>
+            <h2 className="text-lg font-medium mb-2 text-warm-900 dark:text-warm-50 tracking-tight">Genres</h2>
             <div className="flex flex-wrap gap-2">
-              {metadata.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="px-3 py-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-sm text-sm font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
+              {metadata.genres && metadata.genres.length > 0
+                ? metadata.genres.map(genreId => (
+                    <span
+                      key={genreId}
+                      className="px-3 py-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-sm text-sm font-medium"
+                    >
+                      {getGenreName(genreId)}
+                    </span>
+                  ))
+                : metadata.tags.map(tag => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-sm text-sm font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
             </div>
           </div>
         )}
@@ -172,25 +216,55 @@ function StoryPage() {
               Add Chapter
             </button>
           </div>
+          {bookmark && bookmark.chapterNum && bookmark.chapterNum <= (metadata.chapters?.length || 0) && (
+            <div className="mb-4">
+              <Link
+                to={`/story/${slug}/chapter/${bookmark.chapterNum}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-warm-900 dark:bg-warm-100 text-warm-50 dark:text-warm-900 rounded-md hover:opacity-80 transition-opacity font-medium text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                Continue from Chapter {bookmark.chapterNum}
+              </Link>
+            </div>
+          )}
           {metadata.chapters && metadata.chapters.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {metadata.chapters.map((chapter, index) => {
                 const chapterNum = index + 1
+                const menuItems = [
+                  {
+                    label: 'Edit',
+                    icon: <EditIcon className="w-4 h-4" />,
+                    onClick: () => navigate(`/edit-chapter/${slug}/${chapterNum}`)
+                  },
+                  {
+                    label: 'Delete',
+                    icon: <DeleteIcon className="w-4 h-4" />,
+                    onClick: () => {
+                      setChapterToDelete(chapterNum)
+                      setShowDeleteChapterDialog(true)
+                    },
+                    danger: true
+                  }
+                ]
                 return (
-                  <Link
-                    key={chapterNum}
-                    to={`/story/${slug}/chapter/${chapterNum}`}
-                    className="block p-2.5 bg-warm-50 dark:bg-warm-700 rounded-md border border-warm-200 dark:border-warm-600 hover:border-warm-400 dark:hover:border-warm-500 hover:bg-warm-100 dark:hover:bg-warm-600 transition-all group"
-                  >
-                    <div className="font-medium text-warm-900 dark:text-warm-50 mb-0.5 group-hover:opacity-80 transition-opacity text-xs">
-                      Chapter {chapterNum}
-                    </div>
-                    {chapter.title && (
-                      <div className="text-xs text-warm-600 dark:text-warm-400 leading-snug line-clamp-2">
-                        {chapter.title}
+                  <ContextMenuTrigger key={chapterNum} items={menuItems}>
+                    <Link
+                      to={`/story/${slug}/chapter/${chapterNum}`}
+                      className="block p-2.5 bg-warm-50 dark:bg-warm-700 rounded-md border border-warm-200 dark:border-warm-600 hover:border-warm-400 dark:hover:border-warm-500 hover:bg-warm-100 dark:hover:bg-warm-600 transition-all group relative"
+                    >
+                      <div className="font-medium text-warm-900 dark:text-warm-50 mb-0.5 group-hover:opacity-80 transition-opacity text-xs">
+                        Chapter {chapterNum}
                       </div>
-                    )}
-                  </Link>
+                      {chapter.title && (
+                        <div className="text-xs text-warm-600 dark:text-warm-400 leading-snug line-clamp-2">
+                          {chapter.title}
+                        </div>
+                      )}
+                    </Link>
+                  </ContextMenuTrigger>
                 )
               })}
             </div>
@@ -207,6 +281,20 @@ function StoryPage() {
         title="Delete Story"
         message={`Are you sure you want to delete "${metadata.title}"? This will permanently delete the story and all its chapters. This action cannot be undone.`}
         confirmText={deleting ? "Deleting..." : "Delete Story"}
+        cancelText="Cancel"
+        danger={true}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteChapterDialog}
+        onClose={() => {
+          setShowDeleteChapterDialog(false)
+          setChapterToDelete(null)
+        }}
+        onConfirm={handleDeleteChapter}
+        title="Delete Chapter"
+        message={`Are you sure you want to delete Chapter ${chapterToDelete}? This will permanently delete this chapter and renumber remaining chapters. This action cannot be undone.`}
+        confirmText={deletingChapter ? "Deleting..." : "Delete Chapter"}
         cancelText="Cancel"
         danger={true}
       />

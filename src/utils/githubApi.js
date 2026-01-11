@@ -279,7 +279,8 @@ export async function uploadStory(storyData) {
     author: storyData.author,
     summary: storyData.summary,
     rating: storyData.rating || 'PG',
-    tags: capitalizeTags(storyData.tags),
+    genres: storyData.genres || [],
+    tags: existingMetadata?.tags || [], // Keep tags for backward compatibility
     slug: slug,
     chapters: allChapters
   }
@@ -303,7 +304,8 @@ export async function uploadStory(storyData) {
     author: metadata.author,
     summary: metadata.summary,
     rating: metadata.rating,
-    tags: capitalizeTags(metadata.tags),
+    genres: metadata.genres || [],
+    tags: metadata.tags || [], // Keep tags for backward compatibility
     slug: slug,
     chapters: allChapters
   }
@@ -440,7 +442,8 @@ export async function updateStory(slug, storyData) {
       author: storyData.author || existingMetadata.author,
       summary: storyData.summary !== undefined ? storyData.summary : existingMetadata.summary,
       rating: storyData.rating || existingMetadata.rating,
-      tags: storyData.tags !== undefined ? capitalizeTags(storyData.tags) : existingMetadata.tags,
+      genres: storyData.genres !== undefined ? storyData.genres : (existingMetadata.genres || []),
+      tags: existingMetadata.tags || [], // Keep tags for backward compatibility
       slug: slug,
       chapters: existingMetadata.chapters
     }

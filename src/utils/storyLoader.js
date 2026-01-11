@@ -1,5 +1,27 @@
 import { getStoriesIndex, getStoryMetadataFromGitHub, getFileContent } from './githubApi'
 
+// Fix encoding issues with em dashes and other UTF-8 characters
+// Replaces common mis-encoded characters with their correct equivalents
+// These occur when UTF-8 text is incorrectly interpreted as Windows-1252/Latin-1
+function fixEncoding(content) {
+  if (!content || typeof content !== 'string') return content
+  
+  return content
+    // Fix broken em dash — UTF-8 bytes E2 80 94 misinterpreted as Windows-1252
+    // Common variations: "â—"", "â€"", "â€"", or individual bytes
+    .replace(/â—"/g, '—')      // Common Windows-1252 interpretation
+    .replace(/â€"/g, '—')       // Alternative interpretation
+    .replace(/\u00E2\u0080\u0094/g, '—') // Unicode escape sequences
+    .replace(/\u2014/g, '—')    // Direct Unicode em dash (if somehow present)
+    // Fix other common UTF-8 encoding issues
+    .replace(/â€™/g, "'")       // Right single quotation mark
+    .replace(/â€œ/g, '"')       // Left double quotation mark
+    .replace(/â€/g, '"')        // Right double quotation mark
+    .replace(/â€"/g, '–')       // En dash
+    .replace(/â€¦/g, '…')       // Ellipsis
+    .replace(/â€"/g, '—')       // Another em dash variant
+}
+
 export async function loadAllStories() {
   try {
     // Try loading from GitHub API first (for fresh data)
@@ -69,14 +91,14 @@ export async function loadChapter(slug, chapterNum, forceFresh = false) {
         const chapterFile = chapter.file || `chapter-${chapterNum}.md`
         const content = await getFileContent(`public/stories/${slug}/${chapterFile}`)
         if (content) {
-          return content
+          return fixEncoding(content)
         }
         // If content is null and we're forcing fresh, wait and retry once
         if (forceFresh) {
           await new Promise(resolve => setTimeout(resolve, 1000))
           const retryContent = await getFileContent(`public/stories/${slug}/${chapterFile}`)
           if (retryContent) {
-            return retryContent
+            return fixEncoding(retryContent)
           }
         }
       }
@@ -93,7 +115,8 @@ export async function loadChapter(slug, chapterNum, forceFresh = false) {
     if (!response.ok) {
       return null
     }
-    return await response.text()
+    const text = await response.text()
+    return fixEncoding(text)
   } catch (error) {
     console.error(`Error loading chapter ${chapterNum} of ${slug}:`, error)
     return null

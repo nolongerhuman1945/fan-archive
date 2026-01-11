@@ -5,6 +5,12 @@ import remarkGfm from 'remark-gfm'
 import { loadStoryMetadata, loadChapter } from '../utils/storyLoader'
 import { deleteChapter } from '../utils/githubApi'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { setBookmark } from '../utils/bookmarkManager'
+import ReadingSettingsPanel from '../components/ReadingSettingsPanel'
+import { getReadingSettings, getReadingStyles } from '../utils/readingSettings'
+import EditIcon from '../components/icons/EditIcon'
+import DeleteIcon from '../components/icons/DeleteIcon'
+import { SkeletonChapterContent } from '../components/Skeleton'
 
 function ChapterPage() {
   const { slug, chapterNum } = useParams()
@@ -16,7 +22,10 @@ function ChapterPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState(null)
+  const [readingStyles, setReadingStyles] = useState(null)
+  const [settingsVisible, setSettingsVisible] = useState(true)
   const contentRef = useRef(null)
+  const lastScrollY = useRef(0)
 
   const currentChapter = parseInt(chapterNum, 10)
   const totalChapters = metadata?.chapters?.length || 0
@@ -34,6 +43,12 @@ function ChapterPage() {
       setMetadata(storyData)
       setContent(chapterData)
       setLoading(false)
+      
+      // Update bookmark when chapter is loaded
+      if (storyData && currentChapter) {
+        setBookmark(slug, currentChapter)
+      }
+      
       // Remove refresh parameter from URL after loading
       if (forceRefresh) {
         const urlParams = new URLSearchParams(window.location.search)
@@ -46,6 +61,13 @@ function ChapterPage() {
     fetchData()
   }, [slug, currentChapter])
 
+  // Load reading settings on mount
+  useEffect(() => {
+    const settings = getReadingSettings()
+    const styles = getReadingStyles(settings)
+    setReadingStyles(styles)
+  }, [])
+
   useEffect(() => {
     const handleScroll = () => {
       if (!contentRef.current) return
@@ -57,9 +79,20 @@ function ChapterPage() {
       const progress = (scrollTop / scrollableHeight) * 100
 
       setReadingProgress(Math.min(Math.max(progress, 0), 100))
+
+      // Hide/show settings panel based on scroll direction
+      if (scrollTop < 10) {
+        setSettingsVisible(true)
+      } else if (scrollTop > lastScrollY.current && scrollTop > 100) {
+        setSettingsVisible(false)
+      } else if (scrollTop < lastScrollY.current) {
+        setSettingsVisible(true)
+      }
+
+      lastScrollY.current = scrollTop
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
 
     return () => window.removeEventListener('scroll', handleScroll)
@@ -116,11 +149,7 @@ function ChapterPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-lg text-warm-600 dark:text-warm-400">Loading chapter...</div>
-      </div>
-    )
+    return <SkeletonChapterContent />
   }
 
   if (!metadata || !content) {
@@ -144,7 +173,9 @@ function ChapterPage() {
         </div>
       )}
 
-      <div className="sticky top-[64px] z-40 bg-warm-50/95 dark:bg-[#14191A]/95 backdrop-blur-sm border-b border-warm-200 dark:border-warm-800 mb-6">
+      <div className={`sticky top-[64px] z-40 bg-warm-50/95 dark:bg-[#14191A]/95 backdrop-blur-sm border-b border-warm-200 dark:border-warm-800 mb-6 transition-transform duration-300 ${
+        settingsVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <Link
@@ -160,22 +191,27 @@ function ChapterPage() {
               <span className="text-sm text-warm-600 dark:text-warm-400 font-medium">
                 Chapter {currentChapter} of {totalChapters}
               </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => navigate(`/edit-chapter/${slug}/${currentChapter}`)}
-                  className="px-2.5 py-1 text-xs bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors font-medium"
-                  title="Edit chapter"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={totalChapters === 1}
-                  className="px-2.5 py-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
-                >
-                  Delete
-                </button>
+              <div className="flex items-center gap-2">
+                <ReadingSettingsPanel onSettingsChange={setReadingStyles} />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigate(`/edit-chapter/${slug}/${currentChapter}`)}
+                    className="p-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors"
+                    title="Edit chapter"
+                    aria-label="Edit chapter"
+                  >
+                    <EditIcon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteDialog(true)}
+                    disabled={totalChapters === 1}
+                    className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
+                    aria-label={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
+                  >
+                    <DeleteIcon className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -198,7 +234,18 @@ function ChapterPage() {
           </p>
         </header>
 
-        <div ref={contentRef} className="prose-content mb-12">
+        <div 
+          ref={contentRef} 
+          className="prose-content mb-12"
+          style={readingStyles ? {
+            '--reading-font-family': readingStyles.fontFamily,
+            '--reading-font-size': readingStyles.fontSize,
+            '--reading-bg-color': readingStyles.backgroundColor,
+            '--reading-text-color': readingStyles.color,
+            padding: readingStyles.backgroundColor !== 'transparent' ? '1.5rem' : '0',
+            borderRadius: readingStyles.backgroundColor !== 'transparent' ? '0.5rem' : '0'
+          } : {}}
+        >
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {content}
           </ReactMarkdown>

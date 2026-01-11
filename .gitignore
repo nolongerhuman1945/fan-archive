@@ -28,9 +28,14 @@ dist-ssr
 *.sln
 *.sw?
 
+# Serena project files
+.serena/
+
 # Internal documentation files
 issues.md
 plan.md
+implementation-plan.md
+implementation-prompts.md
 
 # Temporary/development files
 *.tmp

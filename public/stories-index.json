@@ -14,13 +14,12 @@
       ],
       "chapters": [
         {
-          "title": "The Discovery"
+          "title": "The Discovery",
+          "file": "chapter-1.md"
         },
         {
-          "title": "First Day at Academy"
-        },
-        {
-          "title": "The Forbidden Library"
+          "title": "First Day at Academy",
+          "file": "chapter-2.md"
         }
       ]
     },
@@ -93,6 +92,53 @@
         {
           "title": "Chapter 2: Pattern Recognition",
           "file": "chapter-2.md"
+        }
+      ]
+    },
+    {
+      "title": "A Kaine",
+      "author": "Claude",
+      "summary": "MCU FanFic",
+      "rating": "R",
+      "tags": [
+        "Action",
+        "Thriller",
+        "Romance",
+        "Anime"
+      ],
+      "slug": "a",
+      "chapters": [
+        {
+          "title": "Chapter 1",
+          "file": "chapter-1.md"
+        },
+        {
+          "title": "Chapter 2",
+          "file": "chapter-2.md"
+        },
+        {
+          "title": "Chapter 3",
+          "file": "chapter-3.md"
+        },
+        {
+          "title": "Chapter 4",
+          "file": "chapter-4.md"
+        },
+        {
+          "title": "Chapter 5",
+          "file": "chapter-5.md"
+        },
+        {
+          "title": "Chapter 6",
+          "file": "chapter-6.md"
+        },
+        {
+          "title": "Chapter 7",
+          "file": "chapter-7.md"
+        },
+        {
+          "title": "Chapter 8",
+          "file": "chapter-8.md"
         }
       ]
     }

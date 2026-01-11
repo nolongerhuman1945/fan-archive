@@ -14,13 +14,12 @@
       ],
       "chapters": [
         {
-          "title": "The Discovery"
+          "title": "The Discovery",
+          "file": "chapter-1.md"
         },
         {
-          "title": "First Day at Academy"
-        },
-        {
-          "title": "The Forbidden Library"
+          "title": "First Day at Academy",
+          "file": "chapter-2.md"
         }
       ]
     },

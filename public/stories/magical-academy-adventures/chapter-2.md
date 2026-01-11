@@ -4,7 +4,7 @@ The journey to the Academy took three days by carriage, three days of wondering 
 
 The Academy of Arcane Arts was nothing like they'd imagined. It was *more*.
 
-Towers spiraled toward the sky, some ending in floating platforms that drifted slowly through the air. Bridges connected buildings at impossible angles, and everywhere, students moved between classes—some walking, some floating, and at least one young woman who appeared to be turning into mist.
+Towers spiraled toward the sky, some ending in floating platforms that drifted slowly through the air. Bridges connected buildings at impossible angles, and everywhere, students moved between classesâsome walking, some floating, and at least one young woman who appeared to be turning into mist.
 
 "First year?"
 
@@ -20,7 +20,7 @@ The sorting ceremony was unlike anything Alex had expected. They stood in the Gr
 
 "Place your hand on the crystal," instructed Professor Thorne, a stern-looking woman with silver hair and eyes that seemed to see right through you.
 
-Alex stepped forward, and as their hand touched the cool surface, light exploded around them. Colors swirled—deep blues, vibrant greens, flashes of gold and silver—and then coalesced into a single symbol above their head: a swirling vortex of stars.
+Alex stepped forward, and as their hand touched the cool surface, light exploded around them. Colors swirledâdeep blues, vibrant greens, flashes of gold and silverâand then coalesced into a single symbol above their head: a swirling vortex of stars.
 
 "The House of Stars," Professor Thorne announced, and the hall erupted in whispers.
 

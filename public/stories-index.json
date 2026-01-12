@@ -1,30 +1,6 @@
 {
   "stories": [
     {
-      "slug": "space-explorer-chronicles",
-      "title": "Space Explorer Chronicles",
-      "author": "StarWriter",
-      "summary": "Captain Nova and her crew explore the far reaches of the galaxy, encountering strange alien civilizations and uncovering ancient secrets.",
-      "rating": "PG",
-      "tags": [
-        "Sci-fi",
-        "Space",
-        "Adventure",
-        "Alien"
-      ],
-      "chapters": [
-        {
-          "title": "The Signal"
-        },
-        {
-          "title": "First Contact"
-        },
-        {
-          "title": "The Ancient Station"
-        }
-      ]
-    },
-    {
       "slug": "time-travel-mystery",
       "title": "Time Travel Mystery",
       "author": "ChronoAuthor",

@@ -4,6 +4,8 @@ import { getGenreName } from '../utils/genreData'
 
 function StoryCard({ story, viewMode }) {
   const bookmark = getBookmark(story.slug)
+  const storyPath = `/story/${story.slug}`
+  
   const ratingColors = {
     'G': 'bg-warm-100 text-warm-700 dark:bg-warm-800 dark:text-warm-300',
     'PG': 'bg-warm-200 text-warm-800 dark:bg-warm-700 dark:text-warm-200',
@@ -15,7 +17,7 @@ function StoryCard({ story, viewMode }) {
   if (viewMode === 'list') {
     return (
       <Link
-        to={`/story/${story.slug}`}
+        to={storyPath}
         className="block p-6 bg-white dark:bg-warm-800 rounded-md border border-warm-200 dark:border-warm-700 hover:border-warm-400 dark:hover:border-warm-600 transition-all hover:shadow-soft-lg group"
       >
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -67,7 +69,7 @@ function StoryCard({ story, viewMode }) {
 
   return (
     <Link
-      to={`/story/${story.slug}`}
+      to={storyPath}
       className="block bg-white dark:bg-warm-800 rounded-md border border-warm-200 dark:border-warm-700 hover:border-warm-400 dark:hover:border-warm-600 transition-all hover:shadow-soft-lg overflow-hidden group h-full"
     >
       <div className="p-5 flex flex-col h-full">

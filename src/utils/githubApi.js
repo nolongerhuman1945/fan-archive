@@ -22,7 +22,16 @@ export async function getFileContent(path, retryCount = 0) {
     })
     
     if (data.type === 'file' && data.encoding === 'base64') {
-      return atob(data.content.replace(/\s/g, ''))
+      // Decode base64 to binary string, then properly decode UTF-8
+      const binaryString = atob(data.content.replace(/\s/g, ''))
+      // Convert binary string to UTF-8 string
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+      // Use TextDecoder to properly decode UTF-8
+      const decoder = new TextDecoder('utf-8')
+      return decoder.decode(bytes)
     }
     return null
   } catch (error) {
@@ -39,19 +48,32 @@ export async function getFileContent(path, retryCount = 0) {
   }
 }
 
-export async function getStoriesIndex() {
+export async function getStoriesIndex(retryCount = 0) {
   try {
-    const content = await getFileContent('public/stories-index.json')
+    const content = await getFileContent('public/stories-index.json', retryCount)
     if (!content) {
+      // Retry once if we get null and haven't retried yet (might be propagation delay)
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        return getStoriesIndex(1)
+      }
       return []
     }
     const parsed = JSON.parse(content)
     return parsed.stories || []
   } catch (error) {
+    // Retry once if JSON parsing fails and we haven't retried (might be propagation delay)
+    if (retryCount === 0 && (error instanceof SyntaxError || error.status === 404)) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      return getStoriesIndex(1)
+    }
     if (error.status === 404) {
       return []
     }
     console.error('Error fetching stories index:', error)
+    if (error instanceof SyntaxError) {
+      console.error('JSON parsing error - the stories-index.json file may be malformed')
+    }
     return []
   }
 }
@@ -111,23 +133,27 @@ export async function commitFiles(files, commitMessage, deletePaths = []) {
   }
 
   try {
-    const { data: refData } = await octokit.git.getRef({
-      owner: GITHUB_OWNER,
-      repo: GITHUB_REPO,
-      ref: 'heads/main'
-    })
+    // Get ref and commit in parallel
+    const [refResponse, commitResponse] = await Promise.all([
+      octokit.git.getRef({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        ref: 'heads/main'
+      }),
+      octokit.repos.getCommit({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        ref: 'main'
+      })
+    ])
 
-    const { data: latestCommit } = await octokit.repos.getCommit({
-      owner: GITHUB_OWNER,
-      repo: GITHUB_REPO,
-      ref: 'main'
-    })
-
-    const baseTreeSha = latestCommit.commit.tree.sha
+    const refData = refResponse.data
+    const baseTreeSha = commitResponse.data.commit.tree.sha
 
     const treeItems = []
 
-    for (const file of files) {
+    // Create all blobs in parallel
+    const blobPromises = files.map(async (file) => {
       const content = typeof file.content === 'string' 
         ? btoa(unescape(encodeURIComponent(file.content)))
         : file.content
@@ -139,26 +165,34 @@ export async function commitFiles(files, commitMessage, deletePaths = []) {
         encoding: 'base64'
       })
 
-      treeItems.push({
+      return {
         path: file.path,
         mode: '100644',
         type: 'blob',
         sha: blob.sha
-      })
-    }
+      }
+    })
 
-    for (const deletePath of deletePaths) {
-      const sha = await getFileSha(deletePath)
-      if (sha) {
-        treeItems.push({
+    const fileTreeItems = await Promise.all(blobPromises)
+    treeItems.push(...fileTreeItems)
+
+    // Get all file SHAs for deletions in parallel
+    if (deletePaths.length > 0) {
+      const deleteShaPromises = deletePaths.map(async (deletePath) => {
+        const sha = await getFileSha(deletePath)
+        return sha ? {
           path: deletePath,
           mode: '100644',
           type: 'blob',
           sha: null
-        })
-      }
+        } : null
+      })
+
+      const deleteTreeItems = await Promise.all(deleteShaPromises)
+      treeItems.push(...deleteTreeItems.filter(item => item !== null))
     }
 
+    // Create tree, commit, and update ref sequentially (required by GitHub API)
     const { data: treeData } = await octokit.git.createTree({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,

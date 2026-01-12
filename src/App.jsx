@@ -2,7 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SearchProvider } from './contexts/SearchContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 import Layout from './components/Layout'
+import NotificationContainer from './components/Notification'
 import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import StoryPage from './pages/StoryPage'
@@ -21,14 +23,16 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <SearchProvider>
-          <Router basename={basePath || "/fan-archive"}>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/*"
-                element={
-                  <Layout>
-                    <Routes>
+          <NotificationProvider>
+            <Router basename={basePath || "/fan-archive"}>
+              <NotificationContainer />
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                  path="/*"
+                  element={
+                    <Layout>
+                      <Routes>
                       <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                       <Route path="/story/:slug" element={<ProtectedRoute><StoryPage /></ProtectedRoute>} />
                       <Route path="/story/:slug/chapter/:chapterNum" element={<ProtectedRoute><ChapterPage /></ProtectedRoute>} />
@@ -37,11 +41,12 @@ function App() {
                       <Route path="/upload" element={<ProtectedRoute><UploadStory /></ProtectedRoute>} />
                       <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                     </Routes>
-                  </Layout>
-                }
-              />
-            </Routes>
-          </Router>
+                    </Layout>
+                  }
+                />
+              </Routes>
+            </Router>
+          </NotificationProvider>
         </SearchProvider>
       </AuthProvider>
     </ThemeProvider>

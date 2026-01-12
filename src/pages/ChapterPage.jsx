@@ -12,12 +12,18 @@ import EditIcon from '../components/icons/EditIcon'
 import DeleteIcon from '../components/icons/DeleteIcon'
 import { SkeletonChapterContent } from '../components/Skeleton'
 
-function ChapterPage() {
+function ChapterPage({ 
+  content: providedContent, 
+  source, 
+  metadata: providedMetadata,
+  customNavigation,
+  storySlug: providedStorySlug
+}) {
   const { slug, chapterNum } = useParams()
   const navigate = useNavigate()
-  const [metadata, setMetadata] = useState(null)
-  const [content, setContent] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [metadata, setMetadata] = useState(providedMetadata || null)
+  const [content, setContent] = useState(providedContent || null)
+  const [loading, setLoading] = useState(!providedContent && !providedMetadata)
   const [readingProgress, setReadingProgress] = useState(0)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -27,10 +33,36 @@ function ChapterPage() {
   const contentRef = useRef(null)
   const lastScrollY = useRef(0)
 
+  // Use provided slug or fallback to params slug
+  const storySlug = providedStorySlug || slug
   const currentChapter = parseInt(chapterNum, 10)
   const totalChapters = metadata?.chapters?.length || 0
+  const isAO3 = source === 'ao3'
 
   useEffect(() => {
+    // Update state when provided props change
+    if (providedContent !== undefined) {
+      setContent(providedContent)
+    }
+    if (providedMetadata !== undefined) {
+      setMetadata(providedMetadata)
+    }
+
+    // Skip loading if content and metadata are provided
+    if (providedContent && providedMetadata) {
+      setLoading(false)
+      // Update bookmark when chapter is loaded
+      if (storySlug && currentChapter) {
+        setBookmark(storySlug, currentChapter)
+      }
+      return
+    }
+
+    // Skip loading if source is AO3 (content will be passed from parent)
+    if (source === 'ao3') {
+      return
+    }
+
     async function fetchData() {
       setLoading(true)
       // Check URL for refresh parameter to force fresh fetch
@@ -59,7 +91,7 @@ function ChapterPage() {
       }
     }
     fetchData()
-  }, [slug, currentChapter])
+  }, [slug, currentChapter, providedContent, providedMetadata, source, storySlug])
 
   // Load reading settings on mount
   useEffect(() => {
@@ -99,26 +131,30 @@ function ChapterPage() {
   }, [content])
 
   useEffect(() => {
-    const savedProgress = localStorage.getItem(`reading-${slug}-${currentChapter}`)
+    const savedProgress = localStorage.getItem(`reading-${storySlug}-${currentChapter}`)
     if (savedProgress && contentRef.current) {
       window.scrollTo(0, parseInt(savedProgress, 10))
     }
-  }, [content, slug, currentChapter])
+  }, [content, storySlug, currentChapter])
 
   useEffect(() => {
     const handleScrollSave = () => {
       if (contentRef.current) {
-        localStorage.setItem(`reading-${slug}-${currentChapter}`, window.pageYOffset.toString())
+        localStorage.setItem(`reading-${storySlug}-${currentChapter}`, window.pageYOffset.toString())
       }
     }
 
     const timeout = setTimeout(handleScrollSave, 1000)
     return () => clearTimeout(timeout)
-  }, [slug, currentChapter])
+  }, [storySlug, currentChapter])
 
   const goToChapter = (newChapterNum) => {
     if (newChapterNum >= 1 && newChapterNum <= totalChapters) {
-      navigate(`/story/${slug}/chapter/${newChapterNum}`)
+      if (customNavigation) {
+        customNavigation(newChapterNum)
+      } else {
+        navigate(`/story/${slug}/chapter/${newChapterNum}`)
+      }
       window.scrollTo(0, 0)
     }
   }
@@ -193,25 +229,27 @@ function ChapterPage() {
               </span>
               <div className="flex items-center gap-2">
                 <ReadingSettingsPanel onSettingsChange={setReadingStyles} />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/edit-chapter/${slug}/${currentChapter}`)}
-                    className="p-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors"
-                    title="Edit chapter"
-                    aria-label="Edit chapter"
-                  >
-                    <EditIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteDialog(true)}
-                    disabled={totalChapters === 1}
-                    className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
-                    aria-label={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
-                  >
-                    <DeleteIcon className="w-4 h-4" />
-                  </button>
-                </div>
+                {!isAO3 && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/edit-chapter/${slug}/${currentChapter}`)}
+                      className="p-1.5 bg-warm-100 dark:bg-warm-700 text-warm-700 dark:text-warm-300 rounded-md hover:bg-warm-200 dark:hover:bg-warm-600 transition-colors"
+                      title="Edit chapter"
+                      aria-label="Edit chapter"
+                    >
+                      <EditIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteDialog(true)}
+                      disabled={totalChapters === 1}
+                      className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
+                      aria-label={totalChapters === 1 ? "Cannot delete the only chapter" : "Delete chapter"}
+                    >
+                      <DeleteIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

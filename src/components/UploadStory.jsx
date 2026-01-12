@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { uploadStory, getStoryMetadataFromGitHub } from '../utils/githubApi'
 import { loadStoryMetadata } from '../utils/storyLoader'
 import GenreModal from './GenreModal'
+import AO3UploadModal from './AO3UploadModal'
 import { getGenreIdsFromNames } from '../utils/genreData'
 import Tooltip from './Tooltip'
 import { SkeletonForm } from './Skeleton'
@@ -31,6 +32,7 @@ function UploadStory() {
   })
   const [existingChapterCount, setExistingChapterCount] = useState(0)
   const [showGenreModal, setShowGenreModal] = useState(false)
+  const [showAO3Modal, setShowAO3Modal] = useState(false)
 
   useEffect(() => {
     if (isExistingStory && storySlug) {
@@ -295,6 +297,10 @@ function UploadStory() {
         onApply={handleGenresApply}
         selectedGenreIds={formData.genres}
       />
+      <AO3UploadModal
+        isOpen={showAO3Modal}
+        onClose={() => setShowAO3Modal(false)}
+      />
       <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-medium mb-2 text-warm-900 dark:text-warm-50 tracking-tight">
@@ -305,6 +311,20 @@ function UploadStory() {
             ? 'Add new chapters to an existing story. Story details cannot be modified.'
             : 'Submit a new story to the archive. All fields are required.'}
         </p>
+        {!isExistingStory && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => setShowAO3Modal(true)}
+              className="px-4 py-2 text-sm bg-warm-900 dark:bg-warm-100 text-warm-50 dark:text-warm-900 rounded-md hover:opacity-80 transition-opacity font-medium flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+              Import from AO3
+            </button>
+          </div>
+        )}
       </div>
 
       {error && (

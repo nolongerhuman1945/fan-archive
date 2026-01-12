@@ -40,6 +40,15 @@ export default {
         'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
         'soft-lg': '0 4px 16px rgba(0, 0, 0, 0.1)',
       },
+      keyframes: {
+        slideIn: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+      },
+      animation: {
+        slideIn: 'slideIn 0.3s ease-out',
+      },
     },
   },
   plugins: [

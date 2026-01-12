@@ -6,20 +6,41 @@ import { getStoriesIndex, getStoryMetadataFromGitHub, getFileContent } from './g
 function fixEncoding(content) {
   if (!content || typeof content !== 'string') return content
   
-  return content
+  // First, try to fix common multi-byte sequences
+  let fixed = content
+    // Fix smart quotes (curly quotes) - UTF-8 bytes E2 80 9C/9D misinterpreted as Windows-1252
+    // Left double quotation mark " (U+201C, UTF-8: E2 80 9C)
+    .replace(/â€œ/g, '"')       // Full sequence: E2 80 9C → â€œ
+    .replace(/â€/g, '"')        // Partial: E2 80 → â€ (when 9C is missing/ignored)
+    .replace(/\u201C/g, '"')    // Direct Unicode left double quote
+    // Right double quotation mark " (U+201D, UTF-8: E2 80 9D)
+    .replace(/â€/g, '"')         // Full sequence: E2 80 9D → â€
+    .replace(/â€/g, '"')         // Partial: E2 80 → â€ (when 9D is missing/ignored)
+    .replace(/\u201D/g, '"')    // Direct Unicode right double quote
     // Fix broken em dash — UTF-8 bytes E2 80 94 misinterpreted as Windows-1252
-    // Common variations: "â—"", "â€"", "â€"", or individual bytes
-    .replace(/â—"/g, '—')      // Common Windows-1252 interpretation
-    .replace(/â€"/g, '—')       // Alternative interpretation
+    .replace(/â—"/g, '—')        // Common Windows-1252 interpretation
+    .replace(/â€"/g, '—')        // Alternative interpretation
     .replace(/\u00E2\u0080\u0094/g, '—') // Unicode escape sequences
-    .replace(/\u2014/g, '—')    // Direct Unicode em dash (if somehow present)
+    .replace(/\u2014/g, '—')     // Direct Unicode em dash
     // Fix other common UTF-8 encoding issues
-    .replace(/â€™/g, "'")       // Right single quotation mark
-    .replace(/â€œ/g, '"')       // Left double quotation mark
-    .replace(/â€/g, '"')        // Right double quotation mark
-    .replace(/â€"/g, '–')       // En dash
-    .replace(/â€¦/g, '…')       // Ellipsis
-    .replace(/â€"/g, '—')       // Another em dash variant
+    .replace(/â€™/g, "'")        // Right single quotation mark
+    .replace(/â€"/g, '–')        // En dash
+    .replace(/â€¦/g, '…')        // Ellipsis
+    .replace(/â€"/g, '—')        // Another em dash variant
+  
+  // Then, fix standalone "â" characters that are likely smart quotes
+  // Left quote: "â" before capital letters or at start of line
+  fixed = fixed
+    .replace(/â([A-Z])/g, '"$1')  // Before capital letter: âGod → "God
+    .replace(/^â/gm, '"')         // At start of line/paragraph
+    .replace(/(\s)â([A-Za-z])/g, '$1"$2')  // After whitespace before letter
+  
+  // Right quote: "â" after letters/punctuation
+  fixed = fixed
+    .replace(/([a-zA-Z.,!?;:])â([\s\n.,!?;:]|$)/g, '$1"$2')  // After punctuation/letter: child.â → child."
+    .replace(/([a-zA-Z])â([\s\n]|$)/g, '$1"$2')  // After letter before whitespace/end: childâ → child"
+  
+  return fixed
 }
 
 export async function loadAllStories() {

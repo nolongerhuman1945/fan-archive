@@ -31,6 +31,14 @@ export function extractWorkId(url) {
  * @returns {Promise<Object>} - { metadata, chapters: [...] }
  */
 export async function downloadAO3Work(url) {
+  // Check if we're on deployed site without backend configured
+  const isDeployed = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+  const hasBackendUrl = import.meta.env.VITE_API_BASE_URL
+  
+  if (isDeployed && !hasBackendUrl) {
+    throw new Error('Download feature requires a backend server. Please run the site locally (npm run dev) or configure VITE_API_BASE_URL to point to a deployed backend.')
+  }
+  
   try {
     const response = await fetch(`${API_BASE_URL}/api/ao3/download-work`, {
       method: 'POST',

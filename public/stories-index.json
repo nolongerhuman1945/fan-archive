@@ -1,29 +1,6 @@
 {
   "stories": [
     {
-      "slug": "magical-academy-adventures",
-      "title": "Magical Academy Adventures",
-      "author": "AuthorName",
-      "summary": "A young wizard discovers their powers and embarks on an epic journey through a magical academy filled with mysteries and danger.",
-      "rating": "PG-13",
-      "tags": [
-        "Fantasy",
-        "Adventure",
-        "Magic",
-        "School Life"
-      ],
-      "chapters": [
-        {
-          "title": "The Discovery",
-          "file": "chapter-1.md"
-        },
-        {
-          "title": "First Day at Academy",
-          "file": "chapter-2.md"
-        }
-      ]
-    },
-    {
       "slug": "space-explorer-chronicles",
       "title": "Space Explorer Chronicles",
       "author": "StarWriter",

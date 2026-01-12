@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fan-archive-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        value: https://nolongerhuman1945.github.io,http://localhost:3000,http://localhost:5173

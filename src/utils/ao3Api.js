@@ -1,6 +1,7 @@
 import { getStoriesIndex, commitFiles } from './githubApi'
 
-const API_BASE_URL = 'http://localhost:3001'
+// Use environment variable for API base URL, fallback to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 /**
  * Extract work ID from AO3 URL
@@ -75,7 +76,12 @@ export async function downloadAO3Work(url) {
     }
     
     if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
-      throw new Error('Unable to connect to the server. Please ensure the backend server is running on http://localhost:3001')
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      if (apiUrl.includes('localhost')) {
+        throw new Error('Unable to connect to the server. Please ensure the backend server is running on http://localhost:3001')
+      } else {
+        throw new Error(`Unable to connect to the backend server at ${apiUrl}. Please check if the server is deployed and running.`)
+      }
     }
     
     throw new Error(error.message || 'Failed to download work. Please try again.')

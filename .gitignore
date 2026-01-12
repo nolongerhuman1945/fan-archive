@@ -37,10 +37,22 @@ plan.md
 implementation-plan.md
 implementation-prompts.md
 AI_CONTEXT.md
+PHASE4_TESTING_SUMMARY.md
+KNOWN_ISSUES.md
+CHANGELOG.md
 
 # Temporary/development files
 *.tmp
 *.temp
+debug-*.html
+
+# Example/test files
+entire_work_page_source.html
+example_of_entire_work_download.html
+node
+
+# Test files (keep for development, but ignore in git)
+server/ao3/test-*.js
 
 # Unused/duplicate files (root level only)
 /icons/
